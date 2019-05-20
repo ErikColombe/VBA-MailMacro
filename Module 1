@@ -2,7 +2,7 @@ Sub FW_SOC()
 Dim objMail As Outlook.MailItem
 Dim objForward As Outlook.MailItem
 Dim Pic As String
-Dim olMail As MailItem
+Dim olMail As MailItem 'Test comment
 
     Set objMail = Outlook.Application.ActiveExplorer.Selection.Item(1)
     Set objApp = GetObject("", "Outlook.Application")
