@@ -1,0 +1,64 @@
+Sub FW_SOC()
+Dim objMail As Outlook.MailItem
+Dim objForward As Outlook.MailItem
+Dim Pic As String
+Dim olMail As MailItem
+
+    Set objMail = Outlook.Application.ActiveExplorer.Selection.Item(1)
+    Set objApp = GetObject("", "Outlook.Application")
+    
+Set objInsp = objApp.ActiveExplorer.Selection.Item(1)
+If TypeName(objInsp) = "Nothing" Then
+MsgBox "No inspector window found"
+Exit Sub
+Else
+Set objForward = Outlook.CreateItem(olMailItem)
+End If
+ With objInsp
+    Set re = CreateObject("vbscript.regexp")
+    re.Pattern = ("[\s\S]*.*(?=Please)")  'In my use of emails I needed to grab everything that was up to the point where the sender
+                                          'said "Please". Using regular expersions I was able to parse through the informaiton and pull it
+                                          'to the new email.
+    
+    
+    For Each match In re.Execute(.HTMLBody)
+
+        Txt = match
+        
+    Next
+    End With
+    
+     With objInsp
+    Set re = CreateObject("vbscript.regexp")
+    re.Pattern = "<img src=*.*"  'this is used to find images. Outlook can use HTML and this allows images to be inserted into the body of the email
+                                 'instead of moving it as an attacment. This code DOES NOT do anything with attachments.
+    re.Global = False
+
+   For Each match In re.Execute(.HTMLBody)
+   Pic = match
+   
+   Next
+   
+   With objForward
+  .HTMLBody = .HTMLBody & Pic
+
+
+   .Display
+ 
+
+    'this currently doesn't work with multiple images. It will only past the first image it finds.
+  
+
+    End With
+    
+End With
+    
+With objForward
+.To = "" 'set the to field. This will not automatically send, so you will get a chance to look over the email.
+.CC = ""
+.BCC = "" 
+.Subject = objInsp.Subject 'this grabs the subject line of the email that was sent and puts it as the subject line for the email you want to foward
+.HTMLBody = Txt & Pic & "Thank you," & "<br>"
+.Display
+End With
+End Sub
